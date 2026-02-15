@@ -26,21 +26,21 @@ export async function GET(request: NextRequest) {
     console.log('Step 1: Grouped files:', files.map(f => ({ fileName: f.fileName, count: f._count.id })));
 
     // Get learning material counts for each file
-    // Query by fileName and count unique scriptIds to avoid duplicates
+    // Query by fileName and count only completed learning materials
     const fileNames = files.map(f => f.fileName);
     const learningCounts = await Promise.all(
       fileNames.map(async (fileName) => {
-        const scripts = await prisma.script.findMany({
+        const count = await prisma.learningMaterial.count({
           where: {
-            fileName,
-          },
-          select: {
-            id: true,
+            script: {
+              fileName,
+              learningMaterial: {
+                status: 'completed',
+              },
+            },
           },
         });
-        const uniqueScriptIds = new Set(scripts.map(s => s.id));
-        const count = uniqueScriptIds.size;
-        console.log(`Step 2: File: ${fileName}, Scripts: ${scripts.length}, Unique scriptIds: ${count}`);
+        console.log(`Step 2: File: ${fileName}, Learning count: ${count}`);
         return { fileName, count };
       })
     );
