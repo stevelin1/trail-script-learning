@@ -55,7 +55,7 @@ export async function POST(request: NextRequest) {
       learningMaterial = await prisma.learningMaterial.create({
         data: {
           scriptId,
-          content: content as Prisma.JsonValue,
+          content: content as unknown as Prisma.InputJsonValue,
           generatedBy: 'deepseek-chat',
           status: 'completed',
         },
