@@ -61,12 +61,12 @@
 /* Japanese font settings */
 @layer base {
   body {
-    font-family: var(--font-noto-sans-sc), 'PingFang SC', 'Noto Sans SC', 'Microsoft YaHei', var(--font-noto-sans-jp), -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', var(--font-inter), sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
   .font-japanese {
-    font-family: 'Hiragino Mincho ProN', 'Hiragino Sans', var(--font-noto-serif-jp), serif;
+    font-family: 'Hiragino Mincho ProN', 'Hiragino Sans', serif;
   }
 }
 
