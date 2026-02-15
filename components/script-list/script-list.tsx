@@ -54,7 +54,12 @@ const learnStatusOptions = [
 export function ScriptList() {
   const [scripts, setScripts] = useState<Script[]>([]);
   const [files, setFiles] = useState<FileGroup[]>([]);
-  const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<string | null>(() => {
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('selected-file') || null;
+    }
+    return null;
+  });
   const [learnStatus, setLearnStatus] = useState<LearnStatus>('all');
   const [loading, setLoading] = useState(true);
   const [loadingFiles, setLoadingFiles] = useState(true);
@@ -94,9 +99,19 @@ export function ScriptList() {
 
       if (data.success) {
         setFiles(data.files);
-        // Auto-select first file if none selected
-        if (data.files.length > 0 && !selectedFile) {
-          setSelectedFile(data.files[0].fileName);
+
+        // Restore selected file from sessionStorage, or auto-select first file
+        const savedFile = sessionStorage.getItem('selected-file');
+        if (data.files.length > 0) {
+          if (savedFile && data.files.find(f => f.fileName === savedFile)) {
+            // Use saved file if it exists
+            if (!selectedFile) {
+              setSelectedFile(savedFile);
+            }
+          } else if (!selectedFile) {
+            // Auto-select first file if no valid saved file
+            setSelectedFile(data.files[0].fileName);
+          }
         }
       }
     } catch (error) {
@@ -183,6 +198,7 @@ export function ScriptList() {
 
   const handleFileSelect = (fileName: string) => {
     setSelectedFile(fileName);
+    sessionStorage.setItem('selected-file', fileName);
     setLearnStatus('all');
     setSearch('');
     setDebouncedSearch('');
