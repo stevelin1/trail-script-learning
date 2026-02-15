@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, BookOpen, Loader2, FileText, FolderOpen } from 'lucide-react';
+import { Search, BookOpen, Loader2, FileText, FolderOpen, CheckCircle2, Circle } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -43,10 +43,19 @@ interface FilesResponse {
   files: FileGroup[];
 }
 
+type LearnStatus = 'all' | 'learned' | 'unlearned';
+
+const learnStatusOptions = [
+  { value: 'all' as const, label: 'すべて', icon: null },
+  { value: 'learned' as const, label: '学習済み', icon: CheckCircle2 },
+  { value: 'unlearned' as const, label: '未学習', icon: Circle },
+];
+
 export function ScriptList() {
   const [scripts, setScripts] = useState<Script[]>([]);
   const [files, setFiles] = useState<FileGroup[]>([]);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
+  const [learnStatus, setLearnStatus] = useState<LearnStatus>('all');
   const [loading, setLoading] = useState(true);
   const [loadingFiles, setLoadingFiles] = useState(true);
   const [pagination, setPagination] = useState<Pagination>({
@@ -100,6 +109,13 @@ export function ScriptList() {
         params.append('search', debouncedSearch);
       }
 
+      // Filter by learn status
+      if (learnStatus === 'learned') {
+        params.append('hasLearningMaterial', 'true');
+      } else if (learnStatus === 'unlearned') {
+        params.append('hasLearningMaterial', 'false');
+      }
+
       const response = await fetch(`/api/script?${params.toString()}`);
       const data: ApiResponse = await response.json();
 
@@ -122,7 +138,7 @@ export function ScriptList() {
     if (selectedFile) {
       fetchScripts(1);
     }
-  }, [selectedFile, debouncedSearch]);
+  }, [selectedFile, learnStatus, debouncedSearch]);
 
   const handlePageChange = (newPage: number) => {
     if (newPage >= 1 && newPage <= pagination.totalPages) {
@@ -132,6 +148,7 @@ export function ScriptList() {
 
   const handleFileSelect = (fileName: string) => {
     setSelectedFile(fileName);
+    setLearnStatus('all');
     setSearch('');
     setDebouncedSearch('');
     setPagination(prev => ({ ...prev, page: 1 }));
@@ -200,7 +217,7 @@ export function ScriptList() {
         {selectedFile && selectedFileData && (
           <>
             {/* File Info Bar */}
-            <div className="mb-4 p-3 bg-gray-50 rounded-lg flex items-center justify-between">
+            <div className="mb-4 p-3 bg-gray-50 rounded-lg flex items-center justify-between flex-wrap gap-2">
               <div className="flex items-center gap-2">
                 <FileText className="h-4 w-4 text-muted-foreground" />
                 <span className="font-medium text-sm">{selectedFile}</span>
@@ -214,6 +231,27 @@ export function ScriptList() {
                     {selectedFileData.learnedScripts}学習済
                   </Badge>
                 )}
+              </div>
+            </div>
+
+            {/* Learn Status Filter */}
+            <div className="mb-4 flex items-center gap-2 flex-wrap">
+              <span className="text-sm font-medium text-gray-600">学習状況:</span>
+              <div className="flex gap-2">
+                {learnStatusOptions.map((option) => {
+                  const Icon = option.icon;
+                  return (
+                    <Button
+                      key={option.value}
+                      variant={learnStatus === option.value ? 'default' : 'outline'}
+                      size="sm"
+                      onClick={() => setLearnStatus(option.value)}
+                    >
+                      {Icon && <Icon className="h-4 w-4 mr-2" />}
+                      {option.label}
+                    </Button>
+                  );
+                })}
               </div>
             </div>
 
@@ -240,7 +278,7 @@ export function ScriptList() {
               <div className="text-center py-12">
                 <BookOpen className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                 <p className="text-muted-foreground">
-                  {search
+                  {search || learnStatus !== 'all'
                     ? '検索結果が見つかりませんでした'
                     : '台詞がまだ登録されていません'}
                 </p>

@@ -11,6 +11,7 @@ export async function GET(request: NextRequest) {
     const character = searchParams.get('character');
     const search = searchParams.get('search');
     const fileName = searchParams.get('fileName');
+    const hasLearningMaterial = searchParams.get('hasLearningMaterial');
 
     const where: any = {};
 
@@ -56,6 +57,13 @@ export async function GET(request: NextRequest) {
       ];
     }
 
+    // Filter by learning status
+    if (hasLearningMaterial === 'true') {
+      where.learningMaterial = { isNot: null };
+    } else if (hasLearningMaterial === 'false') {
+      where.learningMaterial = { is: null };
+    }
+
     const [scripts, total] = await Promise.all([
       prisma.script.findMany({
         where,
@@ -75,22 +83,21 @@ export async function GET(request: NextRequest) {
           japaneseText: true,
           englishText: true,
           fileName: true,
+          learningMaterial: {
+            select: {
+              id: true,
+            },
+          },
         },
       }),
       prisma.script.count({ where }),
     ]);
 
-    const scriptsWithLearningStatus = await Promise.all(
-      scripts.map(async (script) => {
-        const learningMaterial = await prisma.learningMaterial.findUnique({
-          where: { scriptId: script.id },
-        });
-        return {
-          ...script,
-          hasLearningMaterial: !!learningMaterial,
-        };
-      })
-    );
+    const scriptsWithLearningStatus = scripts.map((script) => ({
+      ...script,
+      hasLearningMaterial: !!script.learningMaterial,
+      learningMaterial: undefined,
+    }));
 
     return NextResponse.json({
       success: true,
