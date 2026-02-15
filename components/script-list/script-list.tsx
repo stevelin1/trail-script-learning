@@ -134,6 +134,21 @@ export function ScriptList() {
     fetchFiles();
   }, []);
 
+  // Refresh files list when page becomes visible (e.g., user returns from learning page)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && files.length > 0) {
+        fetchFiles();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [files.length]);
+
   useEffect(() => {
     if (selectedFile) {
       fetchScripts(1);
