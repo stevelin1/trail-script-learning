@@ -54,13 +54,26 @@ export async function GET(request: NextRequest) {
 
     console.log('Step 4: Final file groups:', fileGroups.map(f => ({ fileName: f.fileName, learnedScripts: f.learnedScripts })));
 
+    const processingTime = Date.now() - startTime;
+    console.log('Step 5: Response ready, processing time:', processingTime, 'ms');
+    console.log('Step 5: Response data:', JSON.stringify(fileGroups.map(f => ({
+      fileName: f.fileName,
+      totalScripts: f.totalScripts,
+      learnedScripts: f.learnedScripts
+    }))));
+
     const response = NextResponse.json({
       success: true,
       files: fileGroups,
+      _timestamp: Date.now(),
+      _processingTime: processingTime,
+    }, {
+      headers: {
+        'Cache-Control': 'no-store, no-cache, must-revalidate, max-age=0, s-maxage=0',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+      },
     });
-
-    const processingTime = Date.now() - startTime;
-    console.log('Step 5: Response ready, processing time:', processingTime, 'ms');
 
     return response;
   } catch (error) {

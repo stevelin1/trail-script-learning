@@ -77,8 +77,20 @@ export function ScriptList() {
   const fetchFiles = async () => {
     setLoadingFiles(true);
     try {
-      const response = await fetch('/api/files');
+      const timestamp = Date.now();
+      console.log('[ScriptList] fetchFiles called at:', timestamp);
+      const response = await fetch('/api/files?t=' + timestamp);
       const data: FilesResponse = await response.json();
+
+      console.log('[ScriptList] fetchFiles response:', {
+        timestamp: (data as any)._timestamp,
+        processingTime: (data as any)._processingTime,
+        files: data.files.map(f => ({
+          fileName: f.fileName,
+          totalScripts: f.totalScripts,
+          learnedScripts: f.learnedScripts,
+        })),
+      });
 
       if (data.success) {
         setFiles(data.files);
@@ -88,7 +100,7 @@ export function ScriptList() {
         }
       }
     } catch (error) {
-      console.error('Error fetching files:', error);
+      console.error('[ScriptList] Error fetching files:', error);
     } finally {
       setLoadingFiles(false);
     }
@@ -131,7 +143,15 @@ export function ScriptList() {
   };
 
   useEffect(() => {
-    fetchFiles();
+    const shouldRefresh = sessionStorage.getItem('learning-just-completed') === 'true';
+    console.log('[ScriptList] Initial mount, shouldRefresh:', shouldRefresh);
+
+    fetchFiles().then(() => {
+      if (shouldRefresh) {
+        sessionStorage.removeItem('learning-just-completed');
+        console.log('[ScriptList] Cleared learning-just-completed flag');
+      }
+    });
   }, []);
 
   // Refresh files list when page becomes visible (e.g., user returns from learning page)

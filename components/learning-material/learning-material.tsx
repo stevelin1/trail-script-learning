@@ -62,11 +62,17 @@ interface LearningMaterial {
   script: Script;
 }
 
-export function LearningMaterialView({ scriptId }: { scriptId: string }) {
+interface LearningMaterialViewProps {
+  scriptId: string;
+  onLearningComplete?: () => void;
+}
+
+export function LearningMaterialView({ scriptId, onLearningComplete }: LearningMaterialViewProps) {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [learningMaterial, setLearningMaterial] = useState<LearningMaterial | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [hasNotified, setHasNotified] = useState(false);
 
   const fetchLearningMaterial = async () => {
     setLoading(true);
@@ -87,6 +93,16 @@ export function LearningMaterialView({ scriptId }: { scriptId: string }) {
 
       if (data.learningMaterial) {
         setLearningMaterial(data.learningMaterial);
+
+        // Mark that learning was completed (for refresh when returning to file list)
+        if (!data.cached && !hasNotified) {
+          console.log('[LearningMaterialView] New learning material created, marking for refresh');
+          sessionStorage.setItem('learning-just-completed', 'true');
+          if (onLearningComplete) {
+            onLearningComplete();
+          }
+          setHasNotified(true);
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load learning material');
