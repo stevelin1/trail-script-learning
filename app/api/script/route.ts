@@ -10,8 +10,13 @@ export async function GET(request: NextRequest) {
     const scene = searchParams.get('scene');
     const character = searchParams.get('character');
     const search = searchParams.get('search');
+    const fileName = searchParams.get('fileName');
 
     const where: any = {};
+
+    if (fileName) {
+      where.fileName = fileName;
+    }
 
     if (gameId) {
       where.gameId = parseInt(gameId);
