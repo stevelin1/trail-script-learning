@@ -61,7 +61,7 @@
 /* Japanese font settings */
 @layer base {
   body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', var(--font-noto-sans-jp), var(--font-inter), sans-serif;
+    font-family: var(--font-noto-sans-sc), var(--font-noto-sans-jp), -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', var(--font-inter), sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
