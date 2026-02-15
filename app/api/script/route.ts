@@ -69,6 +69,7 @@ export async function GET(request: NextRequest) {
           characterName: true,
           japaneseText: true,
           englishText: true,
+          fileName: true,
         },
       }),
       prisma.script.count({ where }),

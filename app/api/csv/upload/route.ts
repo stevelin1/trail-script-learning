@@ -62,6 +62,9 @@ export async function POST(request: NextRequest) {
     let insertedCount = 0;
     let skippedCount = 0;
 
+    // Extract file name without .csv extension
+    const fileName = file.name.replace(/\.csv$/, '');
+
     for (let i = 0; i < parseResult.scripts.length; i += batchSize) {
       const batch = parseResult.scripts.slice(i, i + batchSize);
 
@@ -80,6 +83,7 @@ export async function POST(request: NextRequest) {
                 characterName: script.characterName,
                 japaneseText: script.japaneseText,
                 englishText: script.englishText,
+                fileName,
               },
               create: {
                 gameId: script.gameId,
@@ -88,6 +92,7 @@ export async function POST(request: NextRequest) {
                 characterName: script.characterName,
                 japaneseText: script.japaneseText,
                 englishText: script.englishText,
+                fileName,
               },
             });
             return { success: true };
