@@ -70,6 +70,15 @@
   }
 }
 
+/* Improve CJK font rendering on mobile */
+@media (max-width: 768px) {
+  body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+}
+
 /* Ruby text styling */
 rt {
   @apply text-xs text-muted-foreground;
