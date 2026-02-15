@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/db/client';
 import { generateLearningMaterial } from '@/lib/deepseek/client';
 
@@ -54,7 +55,7 @@ export async function POST(request: NextRequest) {
       learningMaterial = await prisma.learningMaterial.create({
         data: {
           scriptId,
-          content,
+          content: content as Prisma.JsonValue,
           generatedBy: 'deepseek-chat',
           status: 'completed',
         },
