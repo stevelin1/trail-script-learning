@@ -4,6 +4,18 @@ import { prisma } from '@/lib/db/client';
 
 export async function POST(request: NextRequest) {
   try {
+    // Test database connection
+    try {
+      await prisma.$connect();
+      console.log('Database connected successfully');
+    } catch (dbError) {
+      console.error('Database connection failed:', dbError);
+      return NextResponse.json(
+        { error: 'Database connection failed', details: dbError instanceof Error ? dbError.message : 'Unknown error' },
+        { status: 500 }
+      );
+    }
+
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
@@ -80,6 +92,7 @@ export async function POST(request: NextRequest) {
             });
             return { success: true };
           } catch (error) {
+            console.error('Error upserting script:', error);
             return { success: false, error };
           }
         })
@@ -102,8 +115,12 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Error uploading CSV:', error);
+    console.error('Error details:', JSON.stringify(error, null, 2));
     return NextResponse.json(
-      { error: 'Failed to upload CSV' },
+      {
+        error: 'Failed to upload CSV',
+        details: error instanceof Error ? error.message : 'Unknown error',
+      },
       { status: 500 }
     );
   }
