@@ -8,7 +8,10 @@ interface FileGroup {
 }
 
 export async function GET(request: NextRequest) {
+  const startTime = Date.now();
   try {
+    console.log('=== Files API called at:', new Date().toISOString());
+
     // Get all unique file names with counts
     const files = await prisma.script.groupBy({
       by: ['fileName'],
@@ -19,6 +22,8 @@ export async function GET(request: NextRequest) {
         fileName: 'asc',
       },
     });
+
+    console.log('Step 1: Grouped files:', files.map(f => ({ fileName: f.fileName, count: f._count.id })));
 
     // Get learning material counts for each file
     const fileNames = files.map(f => f.fileName);
@@ -31,9 +36,12 @@ export async function GET(request: NextRequest) {
             },
           },
         });
+        console.log(`Step 2: File: ${fileName}, Learning count: ${count}`);
         return { fileName, count };
       })
     );
+
+    console.log('Step 3: All learning counts:', learningCounts.map(lc => ({ fileName: lc.fileName, count: lc.count })));
 
     // Combine results
     const fileGroups: FileGroup[] = files.map(file => ({
@@ -42,10 +50,16 @@ export async function GET(request: NextRequest) {
       learnedScripts: learningCounts.find(lc => lc.fileName === file.fileName)?.count || 0,
     }));
 
-    return NextResponse.json({
+    console.log('Step 4: Final file groups:', fileGroups.map(f => ({ fileName: f.fileName, learnedScripts: f.learnedScripts })));
+
+    const response = NextResponse.json({
       success: true,
       files: fileGroups,
+      _timestamp: startTime,
+      _processingTime: Date.now() - startTime,
     });
+
+    console.log('Step 5: Response ready, processing time:', Date.now() - startTime, 'ms');
   } catch (error) {
     console.error('Error fetching files:', error);
     return NextResponse.json(
