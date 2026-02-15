@@ -61,12 +61,20 @@
 /* Japanese font settings */
 @layer base {
   body {
-    font-family: var(--font-noto-sans-jp), var(--font-inter), 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', var(--font-noto-sans-jp), var(--font-inter), sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
   .font-japanese {
-    font-family: var(--font-noto-serif-jp), 'Hiragino Mincho ProN', 'Noto Serif JP', 'PingFang SC', 'STSong', serif;
+    font-family: 'Hiragino Mincho ProN', 'Hiragino Sans', var(--font-noto-serif-jp), serif;
+  }
+}
+
+/* Improve CJK font rendering consistency */
+@layer base {
+  h1, h2, h3, h4, h5, h6 {
+    font-variant-ligatures: no-common-ligatures;
+    font-feature-settings: 'palt' 1, 'ss01' 0, 'ss02' 0, 'ss03' 0, 'ss04' 0, 'ss05' 0;
   }
 }
 
