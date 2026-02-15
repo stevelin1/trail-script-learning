@@ -200,23 +200,55 @@ export function LearningMaterialView({ scriptId }: { scriptId: string }) {
               此句没有需要特别解析的词汇
             </p>
           ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-[150px]">单词 / 短语</TableHead>
-                    <TableHead className="w-[150px]">读音</TableHead>
-                    <TableHead className="w-[100px]">词性</TableHead>
-                    <TableHead className="w-[200px]">释义</TableHead>
-                    <TableHead>语境说明</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {content.vocabulary.map((vocab, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium font-japanese">{vocab.word}</TableCell>
-                      <TableCell>
-                        <div className="font-japanese">
+            <>
+              {/* Desktop Table */}
+              <div className="hidden md:block overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[150px]">单词 / 短语</TableHead>
+                      <TableHead className="w-[150px]">读音</TableHead>
+                      <TableHead className="w-[100px]">词性</TableHead>
+                      <TableHead className="w-[200px]">释义</TableHead>
+                      <TableHead>语境说明</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {content.vocabulary.map((vocab, index) => (
+                      <TableRow key={index}>
+                        <TableCell className="font-medium font-japanese">{vocab.word}</TableCell>
+                        <TableCell>
+                          <div className="font-japanese">
+                            {vocab.reading}
+                            {vocab.pitch && (
+                              <Badge variant="outline" className="ml-2 text-xs">
+                                {vocab.pitch}
+                              </Badge>
+                            )}
+                          </div>
+                          {vocab.verbForms && (
+                            <div className="text-xs text-muted-foreground mt-1">
+                              {vocab.verbForms}
+                            </div>
+                          )}
+                        </TableCell>
+                        <TableCell>{vocab.partOfSpeech}</TableCell>
+                        <TableCell>{vocab.meaning}</TableCell>
+                        <TableCell className="text-sm">{vocab.context}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+
+              {/* Mobile Cards */}
+              <div className="md:hidden space-y-4">
+                {content.vocabulary.map((vocab, index) => (
+                  <div key={index} className="border rounded-lg p-4 space-y-3">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <div className="font-bold font-japanese text-lg">{vocab.word}</div>
+                        <div className="font-japanese text-base text-muted-foreground mt-1">
                           {vocab.reading}
                           {vocab.pitch && (
                             <Badge variant="outline" className="ml-2 text-xs">
@@ -229,15 +261,21 @@ export function LearningMaterialView({ scriptId }: { scriptId: string }) {
                             {vocab.verbForms}
                           </div>
                         )}
-                      </TableCell>
-                      <TableCell>{vocab.partOfSpeech}</TableCell>
-                      <TableCell>{vocab.meaning}</TableCell>
-                      <TableCell className="text-sm">{vocab.context}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
+                      </div>
+                      <Badge variant="secondary">{vocab.partOfSpeech}</Badge>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-muted-foreground mb-1">释义</div>
+                      <div className="text-sm">{vocab.meaning}</div>
+                    </div>
+                    <div>
+                      <div className="text-sm font-medium text-muted-foreground mb-1">语境说明</div>
+                      <div className="text-sm bg-muted/50 p-3 rounded-md">{vocab.context}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </CardContent>
       </Card>
