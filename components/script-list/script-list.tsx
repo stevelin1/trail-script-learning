@@ -79,7 +79,7 @@ export function ScriptList() {
         setPagination(data.pagination);
         // Auto-expand all files when searching
         if (debouncedSearch && data.scripts.length > 0) {
-          const uniqueFileNames = [...new Set(data.scripts.map(s => s.fileName))];
+          const uniqueFileNames = Array.from(new Set(data.scripts.map(s => s.fileName)));
           setExpandedFiles(new Set(uniqueFileNames));
         }
       }
@@ -113,7 +113,7 @@ export function ScriptList() {
   };
 
   const expandAll = () => {
-    const uniqueFileNames = [...new Set(scripts.map(s => s.fileName))];
+    const uniqueFileNames = Array.from(new Set(scripts.map(s => s.fileName)));
     setExpandedFiles(new Set(uniqueFileNames));
   };
 
