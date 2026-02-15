@@ -300,26 +300,26 @@ export function LearningMaterialView({ scriptId }: { scriptId: string }) {
                   </h4>
                   <div className="space-y-2 text-sm">
                     <div>
-                      <span className="font-medium">形式与构成：</span>
+                      <span className="font-normal">形式与构成：</span>
                       <span className="text-muted-foreground">{grammar.form}</span>
                     </div>
                     <div>
-                      <span className="font-medium">本句中的具体使用方式：</span>
+                      <span className="font-normal">本句中的具体使用方式：</span>
                       <span className="text-muted-foreground font-japanese">{grammar.usage}</span>
                     </div>
                     <div>
-                      <span className="font-medium">功能与语感：</span>
+                      <span className="font-normal">功能与语感：</span>
                       <span className="text-muted-foreground">{grammar.function}</span>
                     </div>
                     {grammar.commonConfusion && (
                       <div>
-                        <span className="font-medium">常见混淆点对比：</span>
+                        <span className="font-normal">常见混淆点对比：</span>
                         <span className="text-muted-foreground">{grammar.commonConfusion}</span>
                       </div>
                     )}
                     {grammar.speechNote && (
                       <div className="bg-muted/50 p-3 rounded-md">
-                        <span className="font-medium">口语说明：</span>
+                        <span className="font-normal">口语说明：</span>
                         <span className="text-muted-foreground">{grammar.speechNote}</span>
                       </div>
                     )}
