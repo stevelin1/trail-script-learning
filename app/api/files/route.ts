@@ -26,17 +26,21 @@ export async function GET(request: NextRequest) {
     console.log('Step 1: Grouped files:', files.map(f => ({ fileName: f.fileName, count: f._count.id })));
 
     // Get learning material counts for each file
+    // Query by fileName and count unique scriptIds to avoid duplicates
     const fileNames = files.map(f => f.fileName);
     const learningCounts = await Promise.all(
       fileNames.map(async (fileName) => {
-        const count = await prisma.learningMaterial.count({
+        const scripts = await prisma.script.findMany({
           where: {
-            script: {
-              fileName,
-            },
+            fileName,
+          },
+          select: {
+            id: true,
           },
         });
-        console.log(`Step 2: File: ${fileName}, Learning count: ${count}`);
+        const uniqueScriptIds = new Set(scripts.map(s => s.id));
+        const count = uniqueScriptIds.size;
+        console.log(`Step 2: File: ${fileName}, Scripts: ${scripts.length}, Unique scriptIds: ${count}`);
         return { fileName, count };
       })
     );
@@ -55,11 +59,12 @@ export async function GET(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       files: fileGroups,
-      _timestamp: startTime,
-      _processingTime: Date.now() - startTime,
     });
 
-    console.log('Step 5: Response ready, processing time:', Date.now() - startTime, 'ms');
+    const processingTime = Date.now() - startTime;
+    console.log('Step 5: Response ready, processing time:', processingTime, 'ms');
+
+    return response;
   } catch (error) {
     console.error('Error fetching files:', error);
     return NextResponse.json(
