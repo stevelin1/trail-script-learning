@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/db/client';
 
+// Disable Next.js route caching
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 interface FileGroup {
   fileName: string;
   totalScripts: number;
