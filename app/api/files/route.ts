@@ -33,11 +33,9 @@ export async function GET(request: NextRequest) {
         const count = await prisma.learningMaterial.count({
           where: {
             script: {
-              fileName,
-              learningMaterial: {
-                status: 'completed',
-              },
+              fileName: fileName,
             },
+            status: 'completed',
           },
         });
         console.log(`Step 2: File: ${fileName}, Learning count: ${count}`);
