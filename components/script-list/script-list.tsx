@@ -60,7 +60,13 @@ export function ScriptList() {
     }
     return null;
   });
-  const [learnStatus, setLearnStatus] = useState<LearnStatus>('all');
+  const [learnStatus, setLearnStatus] = useState<LearnStatus>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = sessionStorage.getItem('learn-status');
+      return (saved === 'learned' || saved === 'unlearned') ? saved : 'all';
+    }
+    return 'all';
+  });
   const [loading, setLoading] = useState(true);
   const [loadingFiles, setLoadingFiles] = useState(true);
   const [pagination, setPagination] = useState<Pagination>({
@@ -199,10 +205,17 @@ export function ScriptList() {
   const handleFileSelect = (fileName: string) => {
     setSelectedFile(fileName);
     sessionStorage.setItem('selected-file', fileName);
+    // Reset learn status to 'all' when changing files
     setLearnStatus('all');
+    sessionStorage.setItem('learn-status', 'all');
     setSearch('');
     setDebouncedSearch('');
     setPagination(prev => ({ ...prev, page: 1 }));
+  };
+
+  const handleLearnStatusChange = (status: LearnStatus) => {
+    setLearnStatus(status);
+    sessionStorage.setItem('learn-status', status);
   };
 
   const truncateText = (text: string, maxLength: number = 100) => {
@@ -296,7 +309,7 @@ export function ScriptList() {
                       key={option.value}
                       variant={learnStatus === option.value ? 'default' : 'outline'}
                       size="sm"
-                      onClick={() => setLearnStatus(option.value)}
+                      onClick={() => handleLearnStatusChange(option.value)}
                     >
                       {Icon && <Icon className="h-4 w-4 mr-2" />}
                       {option.label}
