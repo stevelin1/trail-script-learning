@@ -213,6 +213,17 @@ export function ScriptList() {
     setPagination(prev => ({ ...prev, page: 1 }));
   };
 
+  const handleFileSelectWithLearned = (fileName: string, e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent button click
+    setSelectedFile(fileName);
+    sessionStorage.setItem('selected-file', fileName);
+    setLearnStatus('learned');
+    sessionStorage.setItem('learn-status', 'learned');
+    setSearch('');
+    setDebouncedSearch('');
+    setPagination(prev => ({ ...prev, page: 1 }));
+  };
+
   const handleLearnStatusChange = (status: LearnStatus) => {
     setLearnStatus(status);
     sessionStorage.setItem('learn-status', status);
@@ -266,7 +277,12 @@ export function ScriptList() {
                       {file.totalScripts}件
                     </Badge>
                     {file.learnedScripts > 0 && (
-                      <Badge variant="success" className="text-xs">
+                      <Badge
+                        variant="success"
+                        className="text-xs cursor-pointer hover:bg-green-600/80 transition-colors"
+                        onClick={(e) => handleFileSelectWithLearned(file.fileName, e)}
+                        title="このファイルの学習済み台詞のみを表示"
+                      >
                         {file.learnedScripts}学習済
                       </Badge>
                     )}
