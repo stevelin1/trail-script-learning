@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { TTSButton } from '@/components/tts-button/tts-button';
 
 interface VocabularyEntry {
   word: string;
@@ -195,9 +196,12 @@ export function LearningMaterialView({ scriptId, onLearningComplete }: LearningM
             <Badge variant="outline">Scene {script.scene}</Badge>
           </div>
           <CardTitle className="font-japanese">{script.characterName}</CardTitle>
-          <CardDescription className="font-japanese text-base">
-            {script.japaneseText}
-          </CardDescription>
+          <div className="flex items-start gap-3 mt-2">
+            <CardDescription className="font-japanese text-base flex-1">
+              {script.japaneseText}
+            </CardDescription>
+            <TTSButton text={script.japaneseText} />
+          </div>
           <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
             <span>生成日時: {new Date(learningMaterial.generatedAt).toLocaleString('ja-JP')}</span>
             <span>{learningMaterial.generatedBy}</span>
@@ -364,11 +368,17 @@ export function LearningMaterialView({ scriptId, onLearningComplete }: LearningM
             </div>
           </div>
           <div className="space-y-2">
-            <h4 className="text-sm font-medium text-muted-foreground">3. 原文</h4>
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-medium text-muted-foreground">3. 原文</h4>
+              {content.translation.original && <TTSButton text={content.translation.original} />}
+            </div>
             <p className="font-japanese text-lg bg-muted/50 p-3 rounded-md">{content.translation.original}</p>
           </div>
           <div className="space-y-2">
-            <h4 className="text-sm font-medium text-muted-foreground">4. 整句假名读音</h4>
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-medium text-muted-foreground">4. 整句假名读音</h4>
+              {content.translation.kana && <TTSButton text={content.translation.kana} />}
+            </div>
             <p className="font-japanese text-base bg-muted/50 p-3 rounded-md leading-relaxed">
               {content.translation.kana}
             </p>
