@@ -15,6 +15,63 @@ export interface TTSButtonProps {
 
 type TTSState = 'idle' | 'loading' | 'playing' | 'paused';
 
+// Shared voice state across all TTSButton instances
+let sharedVoice: string | null = null;
+let voicesLoaded = false;
+const voiceCallbacks: Array<(voice: string | null) => void> = [];
+
+// Shared voice loader - runs only once
+function loadSharedVoices() {
+  if (voicesLoaded) return;
+
+  const attemptLoad = () => {
+    const availableVoices = speechSynthesis.getVoices();
+    if (availableVoices.length === 0) return false;
+
+    const japaneseVoices = availableVoices.filter((v) =>
+      v.lang.startsWith('ja')
+    );
+
+    // Try to find a female voice first (names often contain 'Female', 'Kyoko', 'O-Ren', etc.)
+    const femaleVoice = japaneseVoices.find((v) =>
+      /female|kyoko|o-ren|女性/i.test(v.name)
+    );
+
+    if (femaleVoice) {
+      sharedVoice = femaleVoice.name;
+    } else if (japaneseVoices.length > 0) {
+      sharedVoice = japaneseVoices[0].name;
+    }
+
+    voicesLoaded = true;
+    voiceCallbacks.forEach(cb => cb(sharedVoice));
+    voiceCallbacks.length = 0;
+    return true;
+  };
+
+  if (attemptLoad()) return;
+
+  // Chrome requires waiting for onvoiceschanged
+  const listener = () => {
+    if (attemptLoad()) {
+      speechSynthesis.removeEventListener('voiceschanged', listener);
+    }
+  };
+  speechSynthesis.addEventListener('voiceschanged', listener);
+
+  // Fallback: retry after delay
+  setTimeout(() => {
+    if (!voicesLoaded) {
+      attemptLoad();
+    }
+  }, 500);
+}
+
+// Start loading voices immediately
+if (typeof window !== 'undefined' && !voicesLoaded) {
+  loadSharedVoices();
+}
+
 export function TTSButton({
   text,
   lang = 'ja-JP',
@@ -24,38 +81,20 @@ export function TTSButton({
   disabled = false,
 }: TTSButtonProps) {
   const [state, setState] = useState<TTSState>('idle');
-  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
-  const [selectedVoice, setSelectedVoice] = useState<string | null>(null);
+  const [selectedVoice, setSelectedVoice] = useState<string | null>(() => sharedVoice);
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
 
-  // Load available voices
+  // Subscribe to shared voice updates
   useEffect(() => {
-    const loadVoices = () => {
-      const availableVoices = speechSynthesis.getVoices();
-      const japaneseVoices = availableVoices.filter((v) =>
-        v.lang.startsWith('ja')
-      );
-      setVoices(japaneseVoices);
-
-      // Try to find a female voice first (names often contain 'Female', 'Kyoko', 'O-Ren', etc.)
-      const femaleVoice = japaneseVoices.find((v) =>
-        /female|kyoko|o-ren|女性/i.test(v.name)
-      );
-
-      if (femaleVoice && !selectedVoice) {
-        setSelectedVoice(femaleVoice.name);
-      } else if (japaneseVoices.length > 0 && !selectedVoice) {
-        // Fallback to first Japanese voice
-        setSelectedVoice(japaneseVoices[0].name);
-      }
-    };
-
-    // Chrome requires onvoiceschanged event
-    if (speechSynthesis.onvoiceschanged !== undefined) {
-      speechSynthesis.onvoiceschanged = loadVoices;
+    if (voicesLoaded && sharedVoice) {
+      setSelectedVoice(sharedVoice);
+    } else if (!voicesLoaded) {
+      voiceCallbacks.push(setSelectedVoice);
     }
-
-    loadVoices();
+    return () => {
+      const idx = voiceCallbacks.indexOf(setSelectedVoice);
+      if (idx > -1) voiceCallbacks.splice(idx, 1);
+    };
   }, []);
 
   const handlePlay = () => {
@@ -70,9 +109,10 @@ export function TTSButton({
     utterance.rate = rate;
     utterance.pitch = pitch;
 
-    // Set selected voice if available
+    // Set selected voice if available - get dynamically from speechSynthesis
     if (selectedVoice) {
-      const voice = voices.find((v) => v.name === selectedVoice);
+      const allVoices = speechSynthesis.getVoices();
+      const voice = allVoices.find((v) => v.name === selectedVoice);
       if (voice) {
         utterance.voice = voice;
       }
