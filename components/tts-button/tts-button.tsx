@@ -37,8 +37,15 @@ export function TTSButton({
       );
       setVoices(japaneseVoices);
 
-      // Auto-select first Japanese voice
-      if (japaneseVoices.length > 0 && !selectedVoice) {
+      // Try to find a female voice first (names often contain 'Female', 'Kyoko', 'O-Ren', etc.)
+      const femaleVoice = japaneseVoices.find((v) =>
+        /female|kyoko|o-ren|女性/i.test(v.name)
+      );
+
+      if (femaleVoice && !selectedVoice) {
+        setSelectedVoice(femaleVoice.name);
+      } else if (japaneseVoices.length > 0 && !selectedVoice) {
+        // Fallback to first Japanese voice
         setSelectedVoice(japaneseVoices[0].name);
       }
     };
