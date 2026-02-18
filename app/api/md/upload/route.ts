@@ -41,7 +41,8 @@ export async function POST(request: NextRequest) {
     const parseResults = parseLearningMaterials(content);
     console.log('Parsed', parseResults.length, 'sentence blocks');
 
-    const fileName = file.name; // Keep the full filename including .md extension
+    // Strip .md extension to match CSV file names (which are stored without .csv extension)
+    const fileName = file.name.replace(/\.md$/, '');
 
     // Find all scripts with matching filename
     const scripts = await prisma.script.findMany({
