@@ -1,0 +1,46 @@
+/**
+ * Main entry point for Japanese learning materials parser
+ */
+
+export type {
+  LearningMaterial,
+  VocabularyItem,
+  GrammarItem,
+  Translation,
+  ParseResult,
+  TestReport,
+} from './types';
+
+export {
+  parseLearningMaterials,
+  parseSentenceBlock,
+} from './parser';
+
+export {
+  SENTENCE_HEADER_REGEX,
+  ORIGINAL_TEXT_REGEX,
+  EXTENDED_EXPLANATION_REGEX,
+  PROGRESS_INDICATOR_REGEX,
+  VOCAB_TABLE_HEADER_REGEX,
+  VOCAB_TABLE_SEPARATOR_REGEX,
+  VOCAB_TABLE_ROW_REGEX,
+  READING_WITH_PITCH_REGEX,
+  VERB_FORMS_REGEX,
+  VERB_FORMS_ALT_REGEX,
+  IS_VERB_REGEX,
+  NO_VOCAB_MESSAGE_REGEX,
+  GRAMMAR_SECTION_REGEX,
+  GRAMMAR_NAME_REGEX,
+  GRAMMAR_NAME_ALT_REGEX,
+  GRAMMAR_FIELD_REGEX,
+  GRAMMAR_FIELD_NUMBERED_REGEX,
+  HAS_COMMON_CONFUSION_REGEX,
+  HAS_SPEECH_NOTE_REGEX,
+  EXPRESSION_ANALYSIS_REGEX,
+  TRANSLATION_SECTION_REGEX,
+  TRANSLATION_ITEM_REGEX,
+  TRANSLATION_SIMPLE_REGEX,
+  TRANSLATION_FIELD_NAMES,
+  splitIntoSentenceBlocks,
+  extractSection,
+} from './constants';
