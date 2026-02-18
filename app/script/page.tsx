@@ -15,12 +15,12 @@ export default function ScriptPage() {
         <header className="mb-8">
           <h1 className="text-3xl font-bold mb-2">台詞一覧</h1>
           <p className="text-gray-600">
-            CSV・Markdownファイルをアップロードして台詞を閲覧・学習する
+            台詞を閲覧・学習する
           </p>
         </header>
 
         <div className="grid lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-1 space-y-6">
+          <div className="hidden lg:block lg:col-span-1 space-y-6">
             <CsvUpload />
             <MdUpload />
           </div>
